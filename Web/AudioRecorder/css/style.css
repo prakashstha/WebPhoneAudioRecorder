@@ -1,0 +1,60 @@
+/*CSS File For Sign-In webpage*/
+#body-color{
+background-color:#6699CC;
+}
+#Sign-In{
+margin-top:150px;
+margin-bottom:150px;
+margin-right:150px;
+margin-left:450px;
+border:3px solid #a1a1a1;
+padding:9px 35px; 
+background:#8000CC;
+width:400px;
+border-radius:20px;
+box-shadow: 7px 7px 6px;
+}
+#Sign-Up{
+margin-top:150px;
+margin-bottom:150px;
+margin-right:150px;
+margin-left:450px;
+border:3px solid #a1a1a1;
+padding:9px 35px; 
+background:#8000CC;
+width:400px;
+border-radius:20px;
+box-shadow: 7px 7px 6px;
+}
+#button{
+border-radius:10px;
+width:100px;
+height:40px;
+background:#FF00FF;
+font-weight:bold;
+font-size:20px
+}
+span{
+    margin-left: 10px;
+    color: #b1b1b1;
+    font-size: 11px;
+    font-style: italic;
+}
+span.error{
+    color: #e46c6e;
+}
+form input.submit{
+    background: #68D9CA;
+    color: #fff;
+    font-weight: 700;
+    font-style: normal;
+    border: 0;
+    cursor: pointer;
+}
+
+form input.submit.hover{
+    background: #79a7f1;
+}
+
+
+

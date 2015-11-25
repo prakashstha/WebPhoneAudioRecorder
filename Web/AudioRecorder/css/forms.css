@@ -1,0 +1,119 @@
+
+form{
+    padding: 0 10px 10px;
+}
+
+li {
+    padding: 20px;
+    margin: 10px;
+}
+form label{
+    display: block;
+    color: #FAF5F5;
+    font-weight: 700;
+    line-height: 1.4em;
+}
+
+form input{
+    width: 220px;
+    padding: 1px;
+    color: #949494;
+    font-family: Arial,  Verdana, Helvetica, sans-serif;
+    font-size: 11px;
+    border: 1px solid #cecece;
+}
+
+form input.survey{
+    width: 80px;
+    padding: 1px;
+    color: #949494;
+    font-family: Arial,  Verdana, Helvetica, sans-serif;
+    font-size: 11px;
+    border: 1px solid #cecece;
+}
+span.tab{
+    padding: 0 40px; /* Or desired space*/
+}
+
+form label.error{
+    color: #e46c6e;
+    display: block;
+    font-weight: 700;
+    line-height: 1.4em;
+}
+
+
+form input.error{
+    background: #f8dbdb;
+    border-color: #e77776;
+}
+form  textarea{
+    width: 550px;
+    height: 80px;
+    padding: 6px;
+    color: #adaeae;
+    font-family: Arial,  Verdana, Helvetica, sans-serif;
+    font-style: italic;
+    font-size: 12px;
+    border: 1px solid #cecece;
+}
+form  textarea.error{
+    background: #f8dbdb;
+    border-color: #e77776;
+}
+form  div{
+    margin-bottom: 15px;
+}
+span{
+    margin-left: 10px;
+    color: #b1b1b1;
+    font-size: 11px;
+    font-style: italic;
+}
+span.error{
+    color: #e46c6e;
+}
+form input.submit{
+    background: #6f9ff1;
+    color: #fff;
+    font-weight: 700;
+    font-style: normal;
+    border: 0;
+    cursor: pointer;
+}
+
+form input.submit.hover{
+    background: #79a7f1;
+}
+/*#error{
+    margin-bottom: 20px;
+    border: 1px solid #efefef;
+}
+#error ul{
+    list-style: square;
+    padding: 5px;
+    font-size: 11px;
+}
+#error ul li{
+    list-style-position: inside;
+    line-height: 1.6em;
+}
+#error ul li strong{
+    color: #e46c6d;
+}
+#error.valid ul li strong{
+    color: #93d72e;
+}*/
+table
+{
+border-collapse:collapse;
+}
+table,th, td
+{
+border: 1px solid #888888;
+}
+
+
+.noborder{
+    border : 0px;
+}
