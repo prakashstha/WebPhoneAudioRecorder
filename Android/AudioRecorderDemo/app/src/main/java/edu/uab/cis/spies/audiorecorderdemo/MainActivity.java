@@ -5,11 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,29 +17,27 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 import edu.uab.cis.spies.audiorecorderdemo.TimeSynchronizer.ServerTimeSynchronizer;
@@ -51,11 +47,10 @@ import edu.uab.cis.spies.audiorecorderdemo.gcm.GcmMessageHandler;
 public class MainActivity extends Activity implements View.OnClickListener, Constants {
     RecordAudio recordTask;
     String LOG_TAG = "Records";
-    PlayAudio playTask;
     Button startRecordingButton, stopRecordingButton;
     TextView statusText, txtRegID;
 
-    String tempFile, wavFile;
+    private String tempFile, wavFile, audioTimeFile;
 
    private volatile boolean isRecording = false,isPlaying = false;
 
@@ -77,7 +72,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bufferSize = AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        bufferSize = AudioTrack.getMinBufferSize(SAMPLERATE, AUDIO_CHANNEL_CONFIG, AUDIO_ENDCODING);
         initializeView();
         Intent intent = getIntent();
         formattedDate = intent.getStringExtra(Constants.DIRECTORY_NAME);
@@ -107,8 +102,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
     }
     private void startServices(){
         stopServices();
-
-
         IntentFilter iff = new IntentFilter(GcmMessageHandler.INSTRUCTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, iff);
 
@@ -125,7 +118,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
         Log.d(LOG_TAG,"timeSync started");
 
         tempFile =getTempFilename();
-        wavFile = getFilename();
+        wavFile = getAudioFilePath();
+        audioTimeFile = getAudioTimeInfoFilePath();
         record();
 
 
@@ -154,16 +148,24 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
         Date date = new Date();
         return dateFormat.format(date);
     }
-    private String getFilename(){
+    private String getAudioFilePath(){
         String filepath = Environment.getExternalStorageDirectory().getPath();
         File file = new File(filepath,AUDIO_RECORDER_FOLDER);
 
         if(!file.exists()){
             file.mkdirs();
         }
-        return (file.getAbsolutePath() + "/" +  formattedDate +"mobileAudio" +AUDIO_RECORDER_FILE_EXT_WAV);
+        return (file.getAbsolutePath() + "/" +  formattedDate +"mAudio" +AUDIO_RECORDER_FILE_EXT_WAV);
     }
+    private String getAudioTimeInfoFilePath(){
+        String filepath = Environment.getExternalStorageDirectory().getPath();
+        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
 
+        if(!file.exists()){
+            file.mkdirs();
+        }
+        return (file.getAbsolutePath() + "/" + formattedDate +"mAudioTime.csv");
+    }
     public void regiterOnClick(View v){
         getRegID();
     }
@@ -300,8 +302,12 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
         }
     }
     private class RecordAudio extends AsyncTask<Void, Integer, Void> {
+        private BufferedWriter bfrWriter = null;
+        String timeInfo = "";
         @Override
         protected Void doInBackground(Void... params) {
+            /* make ready a buffer writer to write about the audio time info */
+
             isRecording = true;
             try {
                 DataOutputStream dos = new DataOutputStream(
@@ -314,6 +320,9 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
 
                 byte[] buffer = new byte[bufferSize];
                 audioRecord.startRecording();
+
+                timeInfo += "AUDIO_START_TIME, " + System.currentTimeMillis();
+
                 int r = 0;
                 while (isRecording) {
                     int bufferReadResult = audioRecord.read(buffer, 0,
@@ -327,6 +336,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
                     publishProgress(new Integer(r));
                     r++;
                 }
+                timeInfo += ",AUDIO_STOP_TIME," + System.currentTimeMillis();
                 audioRecord.stop();
                 dos.close();
             } catch (Throwable t) {
@@ -334,6 +344,23 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
             }
             return null;
         }
+
+        private void savedTime(String msg) {
+            bfrWriter = getAudioTimeBufferWriter(audioTimeFile);
+            if(bfrWriter==null){
+                throw new IllegalAccessError("BufferWriter null pointer exception");
+            }
+
+            try {
+                bfrWriter.append(msg);
+                bfrWriter.flush();
+                bfrWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
         protected void onProgressUpdate(Integer... progress) {
             statusText.setText(progress[0].toString());
         }
@@ -341,8 +368,27 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
             startRecordingButton.setEnabled(true);
             stopRecordingButton.setEnabled(false);
             Log.d("stopRecording()", "copying to wav file...");
-            copyWaveFile(getTempFilename(),getFilename());
+            copyWaveFile(getTempFilename(),getAudioFilePath());
+
+            timeInfo += ",AUDIO_SAVED_TIME," + System.currentTimeMillis();
+            savedTime(timeInfo);
+
             Log.d("stopRecording()", "copied");
+        }
+        private BufferedWriter getAudioTimeBufferWriter(String filePath){
+            BufferedWriter bfrWriter = null;
+            try {
+                if(bfrWriter==null){
+                    if(filePath == null || filePath.length() == 0){
+                        filePath = getAudioTimeInfoFilePath();
+                    }
+                    Log.d(LOG_TAG, "Audio Info file path: " +  filePath);
+                    bfrWriter = new BufferedWriter(new FileWriter(filePath));
+                }
+            }catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return bfrWriter;
         }
     }
 //
@@ -405,11 +451,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
         String fmtHeader = "fmt ";
         String data = "data";
 
-        //short BPP = 16; //bit per sample
-        //short numOfChannels = 2;//2 for stereo
-        //int totalDataLen = 999999;
-        //int totalAudioLen = 99966699;
-        //int sampleRate =44100;
 
         int lengthOfFormat = 16;
         short typeOfFormat = 1; //1 for PCM
@@ -452,7 +493,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
 		 /*File size (4 bytes)*/
         headerBuffer.putInt(totalAudioLen);
 
-        displayHeaderContent(headerBuffer);
+        //displayHeaderContent(headerBuffer);
         out.write(headerBuffer.array());
 
     }

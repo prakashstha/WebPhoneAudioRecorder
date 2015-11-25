@@ -24,7 +24,6 @@ public class ServerTimeSynchronizer extends TwoFactorThread {
     private static final String LOG_TAG = ServerTimeSynchronizer.class
             .getSimpleName();
     private static final long TIME_SYNC_AFTER_EVERY_MS = 1000;
-    private static final long TIME_SYNC_DURATION_MS = 1000;
 
     private PushToServer rttCalc, timeDiff;
     private ResponseHandler delegate;
@@ -85,10 +84,11 @@ public class ServerTimeSynchronizer extends TwoFactorThread {
         if(!file.exists()){
             file.mkdirs();
         }
-        return (file.getAbsolutePath() + "/" + formattedData +"mobileTimeSync.csv");
+        return (file.getAbsolutePath() + "/" + formattedData +"mTimeSync.csv");
     }
     @Override
     public void mainloop(){
+        initializeVariables();
         Log.d(LOG_TAG, "RUNNING");
             while(true){
            // long tillTime = System.currentTimeMillis() + TIME_SYNC_DURATION_MS;
@@ -125,11 +125,17 @@ public class ServerTimeSynchronizer extends TwoFactorThread {
 
     }
 
-
+    /**
+     * initialize <code>sTimeSyncServerMsgCounter, sAvgM2STimeDiff, sAvgM2STripTime<code/> to zero
+     */
+    private void initializeVariables() {
+        this.sTimeSyncServerMsgCounter = 0;
+        this.sAvgM2STripTime = 0;
+        this.sAvgM2STimeDiff = 0;
+    }
 
 
     private void updateTimeSyncParams() {
-
         rttCalc = new PushToServer();
         delegate = new ResponseHandler();
         rttCalc.delegate = this.delegate;
@@ -155,11 +161,11 @@ public class ServerTimeSynchronizer extends TwoFactorThread {
                     long oneWayTimeDelay = (responseTime - requestTime) / 2;
                     sAvgM2STimeDiff = (((responseTime - oneWayTimeDelay)-serverTime) + sAvgM2STimeDiff*sTimeSyncServerMsgCounter)/(sTimeSyncServerMsgCounter+1);
                     sTimeSyncServerMsgCounter = sTimeSyncServerMsgCounter + 1;
-                    Log.d(LOG_TAG, "[Time Diff: " + getsAvgM2STimeDiff() + " ms ]");
+                    //Log.d(LOG_TAG, "[Time Diff: " + sAvgM2STimeDiff + " ms ]");
 
                     /* writing all data on file */
                     String str = String.format(Locale.getDefault(), "%d,%d,%d,%d,%d", requestTime, responseTime, serverTime, oneWayTimeDelay, sAvgM2STimeDiff);
-                    //Log.d(LOG_TAG,str);
+                    Log.d(LOG_TAG,str);
                     bfrWriter = getBufferWriter();
                     if(bfrWriter!=null) {
                         try {

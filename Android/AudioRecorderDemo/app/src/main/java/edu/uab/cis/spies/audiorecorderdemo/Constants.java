@@ -55,7 +55,7 @@ public interface Constants {
     byte TEMP_AUDIO = 0x04;
     //audio settings
     int SAMPLERATE = 44100;
-    int AUDIO_CHANNEL_CONFIG = AudioFormat.CHANNEL_CONFIGURATION_STEREO;
+    int AUDIO_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO;
     short channels = 2;
     short BPP = 16;
     int AUDIO_ENDCODING = AudioFormat.ENCODING_PCM_16BIT;

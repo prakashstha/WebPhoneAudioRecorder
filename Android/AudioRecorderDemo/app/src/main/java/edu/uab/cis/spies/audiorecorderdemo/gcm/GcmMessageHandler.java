@@ -61,12 +61,7 @@ public class GcmMessageHandler extends IntentService implements GCMCommands
                     dialogIntent.putExtra(Constants.DIRECTORY_NAME,directoryName);
                     getApplication().startActivity(dialogIntent);
                 }
-
-                //Log.d(LOG_TAG, msg);
-
-
-
-
+        //Log.d(LOG_TAG, msg);
             }
             else if(msg.equalsIgnoreCase(GCM_STOP))
             {
