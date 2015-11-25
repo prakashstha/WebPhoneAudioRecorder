@@ -2,7 +2,7 @@
 
 define("GOOGLE_API_KEY", "AIzaSyCCJ_DjdTT1cSy6V8NDwoy_VwN8LdF4EjM ");
 define("GOOGLE_GCM_URL", "https://android.googleapis.com/gcm/send");
-$regist_id = "APA91bH1vh8eatzkBA1RKs70kOmg0yUpFaNIJHW5tgJDikUA6NRO4qCr8HDJOAb_CoTnxhhBU71Sj-MGBrchKH_OIx7Nq6_NluonQirHlPfr_H9aysWgBXFdJmG2mR-tCTmtS27N036SqVPRVFWq6KQUY0wjqUrgOg";
+$regist_id = "APA91bE3Vty6JWJEhsizHn_0paKFU36lGXdJupaIGGsIY5vToAxl7e5f1FJIsA8H5L2RCFSH9NXMXtg2ScZCr0-yKA0jCI7GOF11jtNtL-7rbKuLCHefy0HMZtJDTfRIo9AivZb2jK5qDzy9tHpnTUgL_aTnl4w1TQ";
 	
 //echo $reg_id;
 //send_gcm_notify($reg_id, $msg);

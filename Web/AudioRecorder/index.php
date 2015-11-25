@@ -31,16 +31,22 @@
 		<script src="js/RecordRTC.js"></script>
 		<script src="js/FileUtility.js"></script>
 		<script src="js/TimeSynchronizer.js"></script>
+		<script src="js/gcm.js"></script>
 
 		<script>
 			var bAudioFile, bAudioTimeFile, bTimeSyncFile;
 					
 			$("document").ready(function(){
 					
+					var GCMStart = "start";
+					var GCMStop = "stop";
 					/* get the fields from the login page based on their id */
 					var stop = document.getElementById('stop');
 					var start = document.getElementById('start');
 					var place = document.getElementById('place');
+					/* UI field to show the GCM messages*/
+					var gcmField = document.getElementById('gcm');
+		
 
 					/* ends of fileName */
 					var audioEnds = 'bAudio';
@@ -58,6 +64,10 @@
 						var date = new Date();
 						var timeVar = date.getTime();
 
+						var msgToDevice = GCMStart + ',' + timeVar +'_'+ placeValue;
+						sendMessageToDevice(msgToDevice);
+						showGCMStatusMessage(msgToDevice);
+
 						bAudioFile = getFileName(dir, timeVar, placeValue, audioEnds);
 						bAudioTimeFile = getFileName(dir, timeVar, placeValue, audioTimeEnds);
 						bTimeSyncFile = getFileName(dir, timeVar, placeValue, timeSyncEnds);
@@ -74,12 +84,19 @@
 					/* stop buttion click event listener */
 					stop.onclick = function() {
 						console.log('stop clicked');
-						stopAudioRecording();
+						
+						sendMessageToDevice(GCMStop);
+						showGCMStatusMessage(GCMStop);
+
+						stopAudioRecording(GCMStop);
 						stopTimeSync();
 						stop.disabled = true;
 						start.disabled = false;
 						console.log('stop clicked');
 				    };
+				    function showGCMStatusMessage(msg){
+				    	gcmField.innerHTML = "GCM Message: " + msg + " message SENT";
+				    }
 			});  
 		</script>
 
