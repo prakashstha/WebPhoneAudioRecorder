@@ -23,7 +23,7 @@ public class ServerTimeSynchronizer extends TwoFactorThread {
 
     private static final String LOG_TAG = ServerTimeSynchronizer.class
             .getSimpleName();
-    private static final long TIME_SYNC_AFTER_EVERY_MS = 1000;
+    private static final long TIME_SYNC_AFTER_EVERY_MS = 500;
 
     private PushToServer rttCalc, timeDiff;
     private ResponseHandler delegate;
@@ -79,12 +79,12 @@ public class ServerTimeSynchronizer extends TwoFactorThread {
 
     private String getServerTimeSyncFilePath(){
         String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+        File file = new File(filepath + File.separator + AUDIO_RECORDER_FOLDER, formattedData);
 
         if(!file.exists()){
             file.mkdirs();
         }
-        return (file.getAbsolutePath() + "/" + formattedData +"mTimeSync.csv");
+        return (file.getAbsolutePath() + "/server_time_sync.csv");
     }
     @Override
     public void mainloop(){
@@ -136,12 +136,14 @@ public class ServerTimeSynchronizer extends TwoFactorThread {
 
 
     private void updateTimeSyncParams() {
-        rttCalc = new PushToServer();
+        String requestTime = String.valueOf(System.currentTimeMillis());
+        String []args = {PushToServer.RTTCalculation, requestTime};
+        rttCalc = new PushToServer(getThreadGroup(), args);
         delegate = new ResponseHandler();
         rttCalc.delegate = this.delegate;
-        String requestTime = String.valueOf(System.currentTimeMillis());
         Log.d(LOG_TAG,"Request timne: " + requestTime);
-        rttCalc.execute(PushToServer.RTTCalculation,requestTime);
+        rttCalc.start();
+        //rttCalc.execute(PushToServer.RTTCalculation,requestTime);
     }
 
     class ResponseHandler implements AsyncResponse{

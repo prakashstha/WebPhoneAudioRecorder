@@ -56,7 +56,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
 
     private GoogleCloudMessaging gcm = null;
     private String regid;
-    private final String PROJECT_NUMBER = "730187203336";
+    private final String PROJECT_NUMBER = "301468968222";
 
 
     private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
@@ -150,21 +150,21 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
     }
     private String getAudioFilePath(){
         String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath,AUDIO_RECORDER_FOLDER);
+        File file = new File(filepath + File.separator + AUDIO_RECORDER_FOLDER, formattedDate);
 
         if(!file.exists()){
             file.mkdirs();
         }
-        return (file.getAbsolutePath() + "/" +  formattedDate +"mAudio" +AUDIO_RECORDER_FILE_EXT_WAV);
+        return (file.getAbsolutePath() + "/phone_audio" +AUDIO_RECORDER_FILE_EXT_WAV);
     }
     private String getAudioTimeInfoFilePath(){
         String filepath = Environment.getExternalStorageDirectory().getPath();
-        File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+        File file = new File(filepath + File.separator + AUDIO_RECORDER_FOLDER, formattedDate);
 
         if(!file.exists()){
             file.mkdirs();
         }
-        return (file.getAbsolutePath() + "/" + formattedDate +"mAudioTime.csv");
+        return (file.getAbsolutePath() + "/phone_audio_time.csv");
     }
     public void regiterOnClick(View v){
         getRegID();
@@ -321,7 +321,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
                 byte[] buffer = new byte[bufferSize];
                 audioRecord.startRecording();
 
-                timeInfo += "AUDIO_START_TIME, " + System.currentTimeMillis();
+                timeInfo += "phone_audio_start," + System.currentTimeMillis();
 
                 int r = 0;
                 while (isRecording) {
@@ -336,7 +336,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
                     publishProgress(new Integer(r));
                     r++;
                 }
-                timeInfo += ",AUDIO_STOP_TIME," + System.currentTimeMillis();
+                timeInfo += ",phone_audio_stop," + System.currentTimeMillis();
                 audioRecord.stop();
                 dos.close();
             } catch (Throwable t) {
@@ -370,7 +370,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Cons
             Log.d("stopRecording()", "copying to wav file...");
             copyWaveFile(getTempFilename(),getAudioFilePath());
 
-            timeInfo += ",AUDIO_SAVED_TIME," + System.currentTimeMillis();
+            timeInfo += ",phone_audio_save," + System.currentTimeMillis();
             savedTime(timeInfo);
 
             Log.d("stopRecording()", "copied");
